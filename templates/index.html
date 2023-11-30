@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Manfrin Luca</title>
+
+        <link rel="icon" type="image/x-icon" href="logoBTC.jpg">
+
+        <style>
+            h1 {
+            font-size: 60px;
+            margin-top: 22px;
+            margin-left: 145px;
+            text-align: center;
+            color: #ffffff;
+            }
+
+            .container {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            #logo {
+                margin-left: 10px;
+                width: 100px; /* Regola la larghezza dell'immagine secondo le tue esigenze */
+                height: auto; /* L'altezza si adattera proporzionalmente alla larghezza */
+            }
+
+            #firma {
+                font-size: 30px;
+            }
+
+            body {
+                background-color: #ffa500; /* Arancione chiaro */
+                color: black; /* Testo nero */
+                font-weight: bold; /* Testo in grassetto */
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <div class="container">
+            
+            <a href="https://bitcoin.org/bitcoin.pdf" target="_blank">
+                <img id="logo" src="logoBTC.jpg" alt="Logo">
+            </a>
+
+            <h1>A Simple Blockchain</h1>
+
+            <div id="firma">Manfrin Luca, 2023</div>
+
+        </div>
+               
+        
+
+        <!--Form per inizializzare gli utenti-->  
+        <fieldset>
+            <legend>Inizializza gli Utenti</legend>
+            <form action="/initialize_users" method="post">
+                <label for="user1_name">Nome Utente 1:</label>
+                <input type="text" name="user1_name" required><br>
+
+                <label for="user1_balance">Bilancio Utente 1:</label>
+                <input type="number" name="user1_balance" required><br>
+
+                <label for="user2_name">Nome Utente 2:</label>
+                <input type="text" name="user2_name" required><br>
+
+                <label for="user2_balance">Bilancio Utente 2:</label>
+                <input type="number" name="user2_balance" required><br>
+
+                <input type="submit" value="Inizializza Utenti">
+            </form>
+        </fieldset>
+
+        <!--Campo per vedere saldo degli utenti-->  
+        <fieldset>
+            <legend>Saldo degli Utenti</legend>
+            {% if user1_name %}
+            <p>Saldo di {{ user1_name }}: {{ blockchain.get_balance(user1_name) }} ₿</p>
+            {% endif %}
+            {% if user2_name %}
+            <p>Saldo di {{ user2_name }}: {{ blockchain.get_balance(user2_name) }} ₿</p>
+            {% endif %}
+        </fieldset>    
+
+        <!--Form per inserire una transazione-->  
+        <fieldset>
+            <legend>Aggiungi Transazione</legend>
+            <form action="/add_transaction" method="post">
+                <label for="sender">Mittente:</label>
+                <input type="text" name="sender" required><br>
+
+                <label for="recipient">Destinatario:</label>
+                <input type="text" name="recipient" required><br>
+
+                <label for="amount">Importo in BTC:</label>
+                <input type="number" name="amount" required><br>
+
+                <input type="submit" value="Esegui Transazione">
+            </form>
+        </fieldset>
+
+        <!--Visualizzazione transazioni di un singolo blocco-->  
+        <fieldset>
+            <legend>Visualizza Transazioni di un Blocco preciso</legend>
+            <form action="/view_transactions" method="post">
+                <label for="block_number">Numero del Blocco:</label>
+                <input type="number" name="block_number" required><br>
+                <input type="submit" value="Visualizza Transazioni del Blocco">
+            </form>
+        </fieldset>
+
+        <fieldset>
+            <legend>Transazioni del Blocco Selezionato</legend>
+            {% if selected_block %}
+                <ul>
+                    <li>
+                        <strong>Index:</strong> {{ selected_block.index }},
+                        <strong>Hash:</strong> {{ selected_block.hash }},
+                        <strong>Nonce:</strong> {{ selected_block.nonce }}
+                    </li>
+                    <li>
+                        <strong>Transazioni:</strong>
+                        <ul>
+                            {% for transaction in selected_block.transactions %}
+                                <li>
+                                    <strong>Mittente:</strong> {{ transaction.sender }},
+                                    <strong>Destinatario:</strong> {{ transaction.recipient }},
+                                    <strong>Importo:</strong> {{ transaction.amount }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+            {% endif %}
+        </fieldset>
+
+        <!--Visualizzazione di tutte le transazioni-->  
+        <fieldset>
+            <legend>Blockchain</legend>
+            <ul>
+                {% for block in blockchain.chain %}
+                <li>
+                    <strong>Index:</strong> {{ block.index }},
+                    <strong>Hash:</strong> {{ block.hash }},
+                    <strong>Nonce:</strong> {{ block.nonce }},
+                    <strong>Transazioni:</strong>
+                    <ul>
+                        {% for transaction in block.transactions %}
+                        <li>
+                            <strong>Mittente:</strong> {{ transaction.sender }},
+                            <strong>Destinatario:</strong> {{ transaction.recipient }},
+                            <strong>Importo:</strong> {{ transaction.amount }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+        </fieldset>  
+        
+        <center>
+            <p>
+                <a href="https://github.com/LucaMan32" target="_blank">&copy; Manfrin Luca - Università degli studi di Milano</a>
+              </p>              
+        </center>
+        
+    </body>
+</html>
