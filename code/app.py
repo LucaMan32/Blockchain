@@ -76,9 +76,11 @@ class Blockchain:
         signature = self.sign_transaction(sender, transaction)
         transaction['signature'] = signature.hex()  # Converti la firma in esadecimale
 
+        transaction_hash = self.hash_string(json.dumps(transaction, sort_keys=True))
+        transaction['transaction_hash'] = transaction_hash
+
         self.mempool.append(transaction)
 
-        transaction_hash = self.hash_string(json.dumps(transaction, sort_keys=True))
         print(f"Transaction Hash: {transaction_hash}")
         print(f"Signature: {signature.hex()}")  # Stampa il valore della firma
 
@@ -96,7 +98,12 @@ class Blockchain:
         previous_block = self.chain[-1]
         previous_hash = self.hash_block(previous_block)
         self.process_mempool()
-        self.add_transaction('System', 'Miner', self.mining_reward)
+
+        # Aggiorna direttamente i saldi del miner e del sistema
+        miner_reward = self.mining_reward
+        self.balances['Miner'] += miner_reward
+        self.balances['System'] -= miner_reward
+        #self.add_transaction('System', 'Miner', self.mining_reward)
         block = self.create_block(previous_hash)
         print(f"Block #{block['index']} mined.")
         print(f"Block Hash: {self.hash_block(block)}")
@@ -173,7 +180,7 @@ blockchain = Blockchain()
 
 @app.route('/')
 def home():
-    return render_template('index.html', balances=blockchain.balances, chain=blockchain.chain)
+    return render_template('index.html', balances=blockchain.balances, chain=blockchain.chain, mempool=blockchain.mempool)
 
 @app.route('/transaction', methods=['POST'])
 def add_transaction():
@@ -181,10 +188,10 @@ def add_transaction():
     recipient = request.form['recipient']
     amount = int(request.form['amount'])
 
-    if sender not in blockchain.balances or not recipient in blockchain.balances:
-        return "Mittente o destinatario non valido. Riprova."
-
-    blockchain.add_transaction(sender, recipient, amount)
+    if sender not in blockchain.balances or not recipient in blockchain.balances or amount < 0:
+        return "Utente o importo non valido. Riprova."
+    else:
+        blockchain.add_transaction(sender, recipient, amount)
 
     return redirect(url_for('home'))
 
@@ -193,17 +200,17 @@ def explore_block():
     block_number = int(request.args.get('block_number'))
 
     if 0 < block_number <= len(blockchain.chain):
-        block = blockchain.chain[block_number - 1]
-        print(f"\nBlock #{block['index']} Hash: {blockchain.hash_block(block)}")
-        print(f"Timestamp: {block['timestamp']}")
-        print(f"Nonce: {block['nonce']}")
+        explored_block = blockchain.chain[block_number - 1]
+        print(f"\nBlock #{explored_block['index']} Hash: {blockchain.hash_block(explored_block)}")
+        print(f"Timestamp: {explored_block['timestamp']}")
+        print(f"Nonce: {explored_block['nonce']}")
         print("Transactions:")
-        for transaction in block['transactions']:
+        for transaction in explored_block['transactions']:
             print(json.dumps(transaction, sort_keys=True, indent=2))
     else:
         return "Blocco non valido."
 
-    return render_template('index.html', balances=blockchain.balances, chain=blockchain.chain)
+    return render_template('index.html', balances=blockchain.balances, chain=blockchain.chain, explored_block=explored_block)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -80,6 +80,22 @@
         </form>
     </fieldset>
 
+    <!-- Stampa transazioni MemPool -->
+    <fieldset>
+        <legend>Transazioni in Mempool:</legend>
+        <ul>
+            {% for transaction in mempool %}
+                <li>
+                    Mittente: {{ transaction['sender'] }},
+                    Destinatario: {{ transaction['recipient'] }},
+                    Importo: {{ transaction['amount'] }} ₿,
+                    Firma della transazione: {{ transaction['signature'] }},
+                    Hash della transazione: {{ transaction['transaction_hash'] }}
+                </li>
+            {% endfor %}
+        </ul>
+    </fieldset>
+
     <!-- Form per visualizzare un blocco preciso -->
     <fieldset>
         <legend>Blockchain Explorer:</legend>
@@ -90,6 +106,29 @@
         </form>
     </fieldset>
 
+    <!-- Stampa di un blocco specifico -->
+    <fieldset>
+        <legend>Block Information:</legend>
+        {% if explored_block %}
+            <h3>Block {{ explored_block['index'] }}</h3>
+            <p>Timestamp: {{ explored_block['timestamp'] }}</p>
+            <p>Nonce: {{ explored_block['nonce'] }}</p>
+            <p>Hash del blocco: {{ explored_block['previous_hash'] }}</p>
+            <p>Transazioni del Blocco: </p>
+            <ul>
+                {% for transaction in explored_block['transactions'] %}
+                    <li><br>
+                        Mittente: {{ transaction['sender'] }}, 
+                        Destinatario: {{ transaction['recipient'] }}, 
+                        Importo: {{ transaction['amount'] }}<br> 
+                        Firma della transazione: {{ transaction['signature'] }}<br>
+                        Hash della transazione: {{ transaction['transaction_hash'] }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </fieldset>
+
     <!-- Stampa di tutta la blockchain -->
     <fieldset>
         <legend>Blockchain:</legend>
@@ -97,11 +136,17 @@
             <h3>Block {{ block['index'] }}</h3>
             <p>Timestamp: {{ block['timestamp'] }}</p>
             <p>Nonce: {{ block['nonce'] }}</p>
-            <p>Hash: {{ block['previous_hash'] }}</p>
-            <p>Transactions:</p>
+            <p>Hash del blocco: {{ block['previous_hash'] }}</p>
+            <p>Transazioni del Blocco: </p>
             <ul>
                 {% for transaction in block['transactions'] %}
-                    <li>{{ transaction }}</li>
+                    <li><br>
+                        Mittente: {{ transaction['sender'] }}, 
+                        Destinatario: {{ transaction['recipient'] }}, 
+                        Importo: {{ transaction['amount'] }}<br> 
+                        Firma della transazione: {{ transaction['signature'] }}<br>
+                        Hash della transazione: {{ transaction['transaction_hash'] }}
+                    </li>
                 {% endfor %}
             </ul>
         {% endfor %}
