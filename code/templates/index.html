@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manfrin Luca</title>
+
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='logoBTC.jpg') }}">
+
+    <style>
+        h1 {
+            font-size: 60px; /* Specifiche per le scritte nel tag <h1> */
+            margin-top: 16px;
+            margin-left: 145px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .container {
+            display: flex;  /* Specifiche del container che contiene logo, titolo e firma */
+            justify-content: space-between;
+            margin-bottom: -25px;
+        }
+
+        #logo {
+            margin-left: 10px; /* Distanza in px dal margine sinistro  */
+            width: 100px; /* Regola la larghezza dell'logo */
+            height: auto; /* L'altezza si adattera proporzionalmente alla larghezza */
+        }
+
+        #firma {
+            font-size: 30px; /* Dimensione dela firma in alto a destra */
+        }
+
+        body {
+            background-color: #ffa500; /* Arancione chiaro */
+            color: black; /* Testo nero */
+            font-weight: bold; /* Testo in grassetto */
+        }
+
+        #footer :hover {
+            color: white; /* Quando si passa con il mouse sopra alla scritta diventa bianca */
+        }
+
+        legend {
+            color: rgb(178, 0, 0); /* Colore delle scritte nel campo <legend> */
+            font-size: 30px; /* Diemensione delle scritte nel campo <legend> di dimensione 30px */
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Contiene logo, titolo e firma --> 
+    <div class="container">
+            
+        <a href="https://bitcoin.org/bitcoin.pdf" target="_blank">
+            <img id="logo" src="{{ url_for('static', filename='logoBTC.jpg') }}" alt="Logo">
+        </a>
+
+        <h1>A Simple Blockchain</h1>
+
+        <div id="firma">Manfrin Luca, 2023</div>
+
+    </div>
+    
+    <!-- Stampa del saldo degli utenti, si aggiorna ad ogni transazione -->  
+    <fieldset>
+        <legend>Saldo utenti:</legend>
+        <ul>
+            {% for user, balance in balances.items() %}
+                <li>{{ user }}: {{ balance }} ₿</li>
+            {% endfor %}
+        </ul>
+    </fieldset>
+
+    <br>
+
+    <!-- Form per creare transazione -->
+    <fieldset>
+        <legend>Nuova transazione:</legend>
+        <form action="/transaction" method="post">
+            <label for="sender">Mittente:</label>
+            <input type="text" name="sender" required><br>
+            <label for="recipient">Destinatario:</label>
+            <input type="text" name="recipient" required><br>
+            <label for="amount">Importo in BTC:</label>
+            <input type="number" name="amount" required><br>
+            <input type="submit" value="Submit">
+        </form>
+    </fieldset>
+
+    <br>
+
+    <!-- Stampa delle transazioni contenute nella MemPool -->
+    <fieldset>
+        <legend>Transazioni in Mempool:</legend>
+        <ul>
+            {% for transaction in mempool %}
+                <li>
+                    Mittente: {{ transaction['sender'] }},<br>
+                    Destinatario: {{ transaction['recipient'] }},<br>
+                    Importo: {{ transaction['amount'] }} ₿,<br>
+                    Firma della transazione: {{ transaction['signature'] }},<br>
+                    Hash della transazione: {{ transaction['transaction_hash'] }}
+                </li>
+            {% endfor %}
+        </ul>
+    </fieldset>
+
+    <br>
+
+    <!-- Form per visualizzare un blocco preciso -->
+    <fieldset>
+        <legend>Blockchain Explorer:</legend>
+        <form action="/block" method="get">
+            <label for="block_number">Block Number:</label>
+            <input type="number" name="block_number" required><br>
+            <input type="submit" value="Explore Block">
+        </form>
+    </fieldset>
+
+    <br>
+
+    <!-- Stampa di un blocco specifico -->
+    <fieldset>
+        <legend>Block Information:</legend>
+        {% if explored_block %}
+            <h3>Block {{ explored_block['index'] }}</h3>
+            <p>Timestamp: {{ explored_block['timestamp'] }}</p>
+            <p>Nonce: {{ explored_block['nonce'] }}</p>
+            <p>Hash del blocco: {{ explored_block['previous_hash'] }}</p>
+            <p>Transazioni del Blocco: </p>
+            <ul>
+                {% for transaction in explored_block['transactions'] %}
+                    <li><br>
+                        Mittente: {{ transaction['sender'] }}, 
+                        Destinatario: {{ transaction['recipient'] }}, 
+                        Importo: {{ transaction['amount'] }}<br> 
+                        Firma della transazione: {{ transaction['signature'] }}<br>
+                        Hash della transazione: {{ transaction['transaction_hash'] }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </fieldset>
+
+    <br>
+
+    <!-- Stampa di tutta la blockchain -->
+    <fieldset>
+        <legend>Blockchain:</legend>
+        {% for block in chain %}
+            <h3>Block {{ block['index'] }}</h3>
+            <p>Timestamp: {{ block['timestamp'] }}</p>
+            <p>Nonce: {{ block['nonce'] }}</p>
+            <p>Hash del blocco: {{ block['previous_hash'] }}</p>
+            <p>Transazioni del Blocco: </p>
+            <ul>
+                {% for transaction in block['transactions'] %}
+                    <li><br>
+                        Mittente: {{ transaction['sender'] }}, 
+                        Destinatario: {{ transaction['recipient'] }}, 
+                        Importo: {{ transaction['amount'] }}<br> 
+                        Firma della transazione: {{ transaction['signature'] }}<br>
+                        Hash della transazione: {{ transaction['transaction_hash'] }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </fieldset>
+
+    <!-- Footer contenente link alla repository GitHub conentente il codice del progetto -->
+    <div id="footer">
+    <center>
+        <p>
+            <h2><a href="https://github.com/LucaMan32" target="_blank">&copy; Manfrin Luca - Università degli studi di Milano</a></h2>
+        </p>              
+    </center>
+    </div>
+    
+</body>
+</html>
